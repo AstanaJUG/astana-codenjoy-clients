@@ -1,0 +1,8 @@
+{
+    "name": "tetris-codenjoy-client",
+    "description": "Javascript client for codenjoy game - Tetris",
+    "version": "1.0.25",
+    "dependencies": {
+        "ws": "5.2.x"
+    }
+}
