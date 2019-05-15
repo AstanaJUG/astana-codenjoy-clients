@@ -13,27 +13,23 @@ namespace TetrisClientCore
         private const string ServerNameAndPort = "localhost:8080";
 
         // Register on the server, write down your registration name
-        private const string UserName = "maximgorbatyuk191093@gmail.com";
+        private const string UserName = "your_bot_email";
 
         // Look up for the code in the browser url after the registration
-        private const string UserCode = "6952362422072069772";
-
-        private static readonly MyTetrisBot _myBot = new MyTetrisBot();
-
-        private static ServerConnector _serverConnector;
+        private const string UserCode = "your_bot_code";
 
         static void Main(string[] args)
         {
             Thread.Sleep(1000);
 
-            _serverConnector = new ServerConnector(
-                _myBot,
+            var serverConnector = new ServerConnector(
+                new MyTetrisBot(),
                 new DefaultLogger(),
                 $"ws://{ServerNameAndPort}/contest/ws?user={UserName}&code={UserCode}");
 
             Task.WaitAll(new[]
             {
-                _serverConnector.Start()
+                serverConnector.Start()
             });
 
             Console.WriteLine("Program finished");
