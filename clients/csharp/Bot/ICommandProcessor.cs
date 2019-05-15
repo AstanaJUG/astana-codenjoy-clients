@@ -2,6 +2,6 @@
 {
     public interface ICommandProcessor
     {
-        string GetResponse(TetrisMoveCommand command);
+        string GetResponse(string commandString);
     }
 }

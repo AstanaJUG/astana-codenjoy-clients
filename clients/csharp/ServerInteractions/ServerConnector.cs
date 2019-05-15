@@ -17,21 +17,33 @@ namespace TetrisClient.ServerInteractions
 
         private readonly ILogger _logger;
 
-        public ServerConnector(ICommandProcessor commandProcessor, ILogger logger)
+        private readonly string _url;
+
+        private bool _stop;
+
+        public ServerConnector(ICommandProcessor commandProcessor, ILogger logger, string url)
         {
             _commandProcessor = commandProcessor;
             _logger = logger;
+            _url = url;
+            _stop = true;
         }
 
-        public async Task Connect(string uri)
+        public void Stop()
         {
+            _stop = true;
+        }
+
+        public async Task Start()
+        {
+            _stop = false;
             ClientWebSocket webSocket = null;
 
             try
             {
                 webSocket = new ClientWebSocket();
-                await webSocket.ConnectAsync(new Uri(uri), CancellationToken.None);
-                await Receive(webSocket);
+                await webSocket.ConnectAsync(new Uri(_url), CancellationToken.None);
+                await StartListening(webSocket);
             }
             catch (Exception ex)
             {
@@ -39,8 +51,7 @@ namespace TetrisClient.ServerInteractions
             }
             finally
             {
-                if (webSocket != null)
-                    webSocket.Dispose();
+                webSocket?.Dispose();
                 Console.WriteLine();
 
                 _logger.LogError("Websocket closed");
@@ -56,10 +67,10 @@ namespace TetrisClient.ServerInteractions
                 true,
                 CancellationToken.None);
 
-            LogStatus(false, buffer, buffer.Length);
+            _logger.LogInfo("sent");
         }
 
-        private async Task Receive(ClientWebSocket webSocket)
+        private async Task StartListening(ClientWebSocket webSocket)
         {
             byte[] buffer = new byte[ReceiveChunkSize];
             while (webSocket.State == WebSocketState.Open)
@@ -79,37 +90,12 @@ namespace TetrisClient.ServerInteractions
                         buffer[i] = 0;
                     }
 
-                    LogStatus(true, buffer, result.Count);
+                    _logger.LogInfo("received");
 
-                    var commandString = Encoder.GetString(buffer, 0, result.Count);
-                    if (Enum.TryParse(commandString, out TetrisMoveCommand command))
-                    {
-                        await Send(webSocket, _commandProcessor.GetResponse(command));
-                    }
-                    else
-                    {
-                        _logger.LogError($"Could not parse command: {commandString}");
-                    }
+                    string commandString = Encoder.GetString(buffer, 0, result.Count);
+
+                    await Send(webSocket, _commandProcessor.GetResponse(commandString));
                 }
-            }
-        }
-
-        private void LogStatus(bool receiving, byte[] buffer, int length)
-        {
-            lock (_consoleLocker)
-            {
-                if (!receiving)
-                {
-                    Console.Clear();
-                    Console.Write(DateTime.Now);
-                    Console.Write("  ");
-
-                    Console.WriteLine(Mybot.HeadlineText);
-                    Console.WriteLine(Mybot.DisplayText);
-                    Console.WriteLine(Mybot.CommandText);
-                }
-
-                Console.ResetColor();
             }
         }
     }

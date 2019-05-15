@@ -2,7 +2,7 @@
 
 namespace TetrisClient.Bot
 {
-    internal class MyTetrisBot
+    internal class MyTetrisBot : ICommandProcessor
     {
         public string HeadlineText { get; private set; }
 
@@ -10,13 +10,13 @@ namespace TetrisClient.Bot
 
         public TetrisMoveCommand CommandText { get; private set; }
 
-        public TetrisMoveCommand Process(string input)
+        public string GetResponse(string commandString)
         {
             HeadlineText = "";
             DisplayText = "";
 
             var board = new Board();
-            board.Parse(input);
+            board.Parse(commandString);
             DisplayText = board.Source;
 
             var random = new Random((int)DateTime.Now.Ticks);
@@ -37,7 +37,7 @@ namespace TetrisClient.Bot
                     break;
             }
 
-            return CommandText;
+            return CommandText.ToString();
         }
     }
 }
