@@ -1,38 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TetrisClient.Bot;
+using TetrisClient.Logging;
 
-namespace TetrisClient
+namespace TetrisClient.ServerInteractions
 {
-    internal class Program
+    public class ServerConnector
     {
-        // Server name and port number -- ask orgs
-        private const string ServerNameAndPort = "localhost:8080";
-
-        // Register on the server, write down your registration name
-        private const string UserName = "your_bot_email";
-
-        // Look up for the code in the browser url after the registration
-        private const string UserCode = "your_bot_code";
-
-        private static readonly object _consoleLocker = new object();
         private const int ReceiveChunkSize = 1024 * 10;
         private static readonly Encoding Encoder = new UTF8Encoding(false);
 
-        private static readonly MyTetrisBot Mybot = new MyTetrisBot();
+        private readonly ICommandProcessor _commandProcessor;
 
-        static void Main(string[] args)
+        private readonly ILogger _logger;
+
+        public ServerConnector(ICommandProcessor commandProcessor, ILogger logger)
         {
-            Thread.Sleep(1000);
-            Connect($"ws://{ServerNameAndPort}/contest/ws?user={UserName}&code={UserCode}").Wait();
+            _commandProcessor = commandProcessor;
+            _logger = logger;
         }
 
-        public static async Task Connect(string uri)
+        public async Task Connect(string uri)
         {
             ClientWebSocket webSocket = null;
 
@@ -48,20 +39,27 @@ namespace TetrisClient
             }
             finally
             {
-                webSocket?.Dispose();
+                if (webSocket != null)
+                    webSocket.Dispose();
                 Console.WriteLine();
+
+                _logger.LogError("Websocket closed");
             }
         }
 
-        private static async Task Send(ClientWebSocket webSocket, TetrisMoveCommand command)
+        private async Task Send(ClientWebSocket webSocket, string response)
         {
+            byte[] buffer = Encoder.GetBytes(response);
+            await webSocket.SendAsync(
+                new ArraySegment<byte>(buffer),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None);
 
-            byte[] buffer = Encoder.GetBytes(command.ToString());
-            await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
             LogStatus(false, buffer, buffer.Length);
         }
 
-        private static async Task Receive(ClientWebSocket webSocket)
+        private async Task Receive(ClientWebSocket webSocket)
         {
             byte[] buffer = new byte[ReceiveChunkSize];
             while (webSocket.State == WebSocketState.Open)
@@ -82,15 +80,21 @@ namespace TetrisClient
                     }
 
                     LogStatus(true, buffer, result.Count);
-                    TetrisMoveCommand command = Mybot.Process(Encoder.GetString(buffer, 0, result.Count));
 
-                    Console.WriteLine($"{DateTime.Now.ToShortTimeString()}: {command}");
-                    await Send(webSocket, command);
+                    var commandString = Encoder.GetString(buffer, 0, result.Count);
+                    if (Enum.TryParse(commandString, out TetrisMoveCommand command))
+                    {
+                        await Send(webSocket, _commandProcessor.GetResponse(command));
+                    }
+                    else
+                    {
+                        _logger.LogError($"Could not parse command: {commandString}");
+                    }
                 }
             }
         }
 
-        private static void LogStatus(bool receiving, byte[] buffer, int length)
+        private void LogStatus(bool receiving, byte[] buffer, int length)
         {
             lock (_consoleLocker)
             {

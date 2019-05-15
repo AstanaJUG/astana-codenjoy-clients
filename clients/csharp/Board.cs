@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace TetrisClient
+﻿namespace TetrisClient
 {
     internal class Board
     {
@@ -11,11 +6,7 @@ namespace TetrisClient
 
         public void Parse(string input)
         {
-            if (input.StartsWith("board=")) {
-                Source = input.Substring(6);
-            } else {
-                Source = input;
-            }
+            Source = input.StartsWith("board=") ? input.Substring(6) : input;
         }
     }
 }

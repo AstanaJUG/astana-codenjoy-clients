@@ -1,0 +1,1 @@
+docker run --name astana-codenjoy-local -d -p 8080:8080 esvalukhin/astana-codenjoy
