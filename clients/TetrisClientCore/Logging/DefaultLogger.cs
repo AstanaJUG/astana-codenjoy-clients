@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TetrisClient.Logging
+namespace TetrisClientCore.Logging
 {
     public class DefaultLogger : ILogger
     {

@@ -1,4 +1,4 @@
-﻿namespace TetrisClient.Logging
+﻿namespace TetrisClientCore.Logging
 {
     public interface ILogger
     {

@@ -19,3 +19,5 @@ package-lock.json
 /clients/csharp/.vs
 /clients/csharp/bin
 /clients/csharp/obj
+/clients/TetrisClientCore/obj
+/clients/TetrisClientCore/bin

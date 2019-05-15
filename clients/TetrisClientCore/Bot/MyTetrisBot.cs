@@ -1,6 +1,7 @@
 ﻿using System;
+using TetrisClientCore.Game;
 
-namespace TetrisClient.Bot
+namespace TetrisClientCore.Bot
 {
     internal class MyTetrisBot : ICommandProcessor
     {

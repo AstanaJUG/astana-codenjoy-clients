@@ -1,4 +1,4 @@
-﻿namespace TetrisClient.Bot
+﻿namespace TetrisClientCore.Bot
 {
     public interface ICommandProcessor
     {

@@ -3,10 +3,10 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TetrisClient.Bot;
-using TetrisClient.Logging;
+using TetrisClientCore.Bot;
+using TetrisClientCore.Logging;
 
-namespace TetrisClient.ServerInteractions
+namespace TetrisClientCore.ServerInteractions
 {
     public class ServerConnector
     {

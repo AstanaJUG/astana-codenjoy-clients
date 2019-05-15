@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TetrisClient.Bot;
-using TetrisClient.Logging;
-using TetrisClient.ServerInteractions;
+using TetrisClientCore.Bot;
+using TetrisClientCore.Logging;
+using TetrisClientCore.ServerInteractions;
 
-namespace TetrisClient
+namespace TetrisClientCore
 {
-    internal class Program
+    class Program
     {
         // Server name and port number -- ask orgs
         private const string ServerNameAndPort = "localhost:8080";
 
         // Register on the server, write down your registration name
-        private const string UserName = "your_bot_email";
+        private const string UserName = "maximgorbatyuk191093@gmail.com";
 
         // Look up for the code in the browser url after the registration
-        private const string UserCode = "your_bot_code";
+        private const string UserCode = "6952362422072069772";
 
         private static readonly MyTetrisBot _myBot = new MyTetrisBot();
 
