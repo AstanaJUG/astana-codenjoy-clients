@@ -16,3 +16,8 @@ package-lock.json
 *.iml
 
 .DS_Store
+/clients/csharp/.vs
+/clients/csharp/bin
+/clients/csharp/obj
+/clients/TetrisClientCore/obj
+/clients/TetrisClientCore/bin
